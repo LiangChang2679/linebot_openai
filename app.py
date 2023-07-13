@@ -142,8 +142,17 @@ def callback():
 def handle_message(event):
     message = event.message.text
     reply_text = '我不明白你的指令，請重試1137。'  # 預設的回覆訊息
+
+    if event.message.text == 'ID?' or event.message.text == 'id?':
+        User_ID = TextMessage(text=event.source.user_id)
+        line_bot_api.reply_message(event.reply_token, User_ID)
+        print ('Reply User ID =>' + event.source.user_id)
+    elif event.message.text == 'GroupID?':
+        Group_ID = TextMessage(text=event.source.group_id)
+        line_bot_api.reply_message(event.reply_token, Group_ID)
+        print ('Reply Group ID =>' + event.source.group_id)
         
-    if message.startswith('/add 逆轉'):
+    elif message.startswith('/add 逆轉'):
         params = message.split('/add 逆轉 ')[1].split(',')
         added_names = []
         for name in params:
@@ -165,45 +174,45 @@ def handle_message(event):
         else:
             reply_text = '指定的玩家已經在名單中。'
 
-        elif message.startswith('/remove 逆轉'):
-            name = message.split('/remove 逆轉 ')[1]
-            remove_participant(name, '逆轉')
+    elif message.startswith('/remove 逆轉'):
+        name = message.split('/remove 逆轉 ')[1]
+        remove_participant(name, '逆轉')
 
-        elif message.startswith('/remove 狗狗'):
-            name = message.split('/remove 狗狗 ')[1]
-            remove_participant(name, '狗狗')
+    elif message.startswith('/remove 狗狗'):
+        name = message.split('/remove 狗狗 ')[1]
+        remove_participant(name, '狗狗')
 
-        elif message == '/list 逆轉':
-            participant_list = list_participants('逆轉')
-            if participant_list:
-                reply_text = '「逆轉」技能書的抽獎名單：\n' + participant_list
-            else:
-                reply_text = '目前沒有任何人參加「逆轉」技能書的抽獎。'
+    elif message == '/list 逆轉':
+        participant_list = list_participants('逆轉')
+        if participant_list:
+            reply_text = '「逆轉」技能書的抽獎名單：\n' + participant_list
+        else:
+            reply_text = '目前沒有任何人參加「逆轉」技能書的抽獎。'
 
-        elif message == '/list 狗狗':
-            participant_list = list_participants('狗狗')
-            if participant_list:
-                reply_text = '「狗狗」的參加名單：\n' + participant_list
-            else:
-                reply_text = '目前沒有任何人參加「狗狗」。'
+    elif message == '/list 狗狗':
+        participant_list = list_participants('狗狗')
+        if participant_list:
+            reply_text = '「狗狗」的參加名單：\n' + participant_list
+        else:
+            reply_text = '目前沒有任何人參加「狗狗」。'
 
-        elif message.startswith('/draw 逆轉'):
-            num = int(message.split('/draw 逆轉 ')[1])
-            reply_text = draw_winners('逆轉', num)
+    elif message.startswith('/draw 逆轉'):
+        num = int(message.split('/draw 逆轉 ')[1])
+        reply_text = draw_winners('逆轉', num)
 
-        elif message == '/小秘書':
-            reply_text = '''【倚窗聽雨可愛小秘書指令說明】
+    elif message == '/小秘書':
+        reply_text = '''【倚窗聽雨可愛小秘書指令說明】
         
-            1. /add 逆轉 {名字1,名字2,...} - 將玩家加入「逆轉」技能書的抽獎名單，可一次新增多個玩家。
-            2. /add 狗狗 {名字1,名字2,...} - 將玩家加入「狗狗」的參加名單，可一次新增多個玩家。
-            3. /remove 逆轉 {名字} - 將玩家移出「逆轉」技能書的抽獎名單。
-            4. /remove 狗狗 {名字} - 將玩家移出「狗狗」的參加名單。
-            5. /list 逆轉 - 查看「逆轉」技能書的抽獎名單。
-            6. /list 狗狗 - 查看「狗狗」的參加名單。
-            7. /draw 逆轉 {數量} - 從「逆轉」技能書的抽獎名單中抽取指定數量的獲獎者。'''
+        1. /add 逆轉 {名字1,名字2,...} - 將玩家加入「逆轉」技能書的抽獎名單，可一次新增多個玩家。
+        2. /add 狗狗 {名字1,名字2,...} - 將玩家加入「狗狗」的參加名單，可一次新增多個玩家。
+        3. /remove 逆轉 {名字} - 將玩家移出「逆轉」技能書的抽獎名單。
+        4. /remove 狗狗 {名字} - 將玩家移出「狗狗」的參加名單。
+        5. /list 逆轉 - 查看「逆轉」技能書的抽獎名單。
+        6. /list 狗狗 - 查看「狗狗」的參加名單。
+        7. /draw 逆轉 {數量} - 從「逆轉」技能書的抽獎名單中抽取指定數量的獲獎者。'''
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
-        
+       
 import os
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))

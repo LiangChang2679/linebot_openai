@@ -22,8 +22,8 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-participants = [("卡卡","7-13")]
-participants_reverse = [("卡哥","7-13"),("小卡","7-13")]
+participants = []
+participants_reverse = []
 winners = []
 
 allowed_users = ['如如咪', '魚兒🦈' , 'Liang']
@@ -135,7 +135,6 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = '我不明白你的指令，請重試。'  # 預設的回覆訊息
         
     if message.startswith('/add 逆轉'):
         params = message.split('/add 逆轉 ')[1].split(',')

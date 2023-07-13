@@ -141,7 +141,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = '我不明白你的指令，請重試。'  # 預設的回覆訊息
+    reply_text = '我不明白你的指令，請重試1137。'  # 預設的回覆訊息
         
     if message.startswith('/add 逆轉'):
         params = message.split('/add 逆轉 ')[1].split(',')

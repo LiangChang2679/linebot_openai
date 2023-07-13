@@ -28,7 +28,7 @@ winners = []
 
 allowed_users = ['如如咪', '魚兒🦈' , 'Liang']
 
-def add_participant(name, prize, position=None):
+def add_participant(name, prize):
     global participants
     global participants_reverse
 
@@ -46,48 +46,29 @@ def add_participant(name, prize, position=None):
         name = name.strip()
         if any(p[0] == name for p in participants_reverse):
             return []
-        if position is None or position >= len(participants_reverse):
-            participants_reverse.append((name, datetime.now().date()))
-        else:
-            participants_reverse.insert(position, (name, datetime.now().date()))
+        participants_reverse.append((name, datetime.now().date()))
         return [name]
-
 
 def remove_participant(name, prize):
     global participants
     global participants_reverse
 
-    if name not in allowed_users:
-        return
-
     if prize == '逆轉':
-        if ',' in name:
-            names = name.split(',')
-            removed_names = []
-            for n in names:
-                participants = [p for p in participants if p[0] != n.strip()]
-                removed_names.append(n.strip())
-            reply_text = f'{", ".join(removed_names)} 已成功移出「逆轉」技能書的抽獎名單！'
+        names = name.split(',')
+        removed_names = []
+        for n in names:
+            n = n.strip()
+            if any(p[0] == n for p in participants):
+                participants = [p for p in participants if p[0] != n]
+                removed_names.append(n)
+        return removed_names
+    elif prize == '狗狗':
+        name = name.strip()
+        if any(p[0] == name for p in participants_reverse):
+            participants_reverse = [p for p in participants_reverse if p[0] != name]
+            return [name]
         else:
-            if (name, datetime.now().date()) not in participants:
-                reply_text = f'{name} 不在「逆轉」技能書的抽獎名單內！'
-            else:
-                participants = [p for p in participants if p[0] != name.strip()]
-                reply_text = f'{name} 已成功移出「逆轉」技能書的抽獎名單！'
-    if prize == '狗狗':
-        if ',' in name:
-            names = name.split(',')
-            removed_names = []
-            for n in names:
-                participants = [p for p in participants if p[0] != n.strip()]
-                removed_names.append(n.strip())
-            reply_text = f'{", ".join(removed_names)} 已成功移出「狗狗」的參加名單！'
-        else:
-            if (name, datetime.now().date()) not in participants:
-                reply_text = f'{name} 不在「狗狗」的參加名單內！'
-            else:
-                participants = [p for p in participants if p[0] != name.strip()]
-                reply_text = f'{name} 已成功移出「狗狗」的參加名單！'
+            return []
 
 def list_participants(prize):
     if prize == '逆轉':
@@ -145,16 +126,7 @@ def handle_message(event):
     message = event.message.text
     reply_text = '我不明白你的指令，請重試1145。'  # 預設的回覆訊息
 
-    if event.message.text == 'ID?' or event.message.text == 'id?':
-        User_ID = TextMessage(text=event.source.user_id)
-        line_bot_api.reply_message(event.reply_token, User_ID)
-        print ('Reply User ID =>' + event.source.user_id)
-    elif event.message.text == 'GroupID?':
-        Group_ID = TextMessage(text=event.source.group_id)
-        line_bot_api.reply_message(event.reply_token, Group_ID)
-        print ('Reply Group ID =>' + event.source.group_id)
-        
-    elif message.startswith('/add 逆轉'):
+    if message.startswith('/add 逆轉'):
         params = message.split('/add 逆轉 ')[1].split(',')
         added_names = []
         for name in params:
@@ -164,7 +136,7 @@ def handle_message(event):
             reply_text = f'{", ".join(added_names)} 已成功加入「逆轉」技能書的抽獎名單！'
         else:
             reply_text = '指定的玩家已經在名單中。'
-        
+
     elif message.startswith('/add 狗狗'):
         params = message.split('/add 狗狗 ')[1].split(',')
         added_names = []
@@ -177,12 +149,26 @@ def handle_message(event):
             reply_text = '指定的玩家已經在名單中。'
 
     elif message.startswith('/remove 逆轉'):
-        name = message.split('/remove 逆轉 ')[1]
-        remove_participant(name, '逆轉')
+        names = message.split('/remove 逆轉 ')[1].split(',')
+        removed_names = []
+        for name in names:
+            removed = remove_participant(name.strip(), '逆轉')
+            removed_names.extend(removed)
+        if removed_names:
+            reply_text = f'{", ".join(removed_names)} 已成功移出「逆轉」技能書的抽獎名單！'
+        else:
+            reply_text = '指定的玩家不在「逆轉」技能書的抽獎名單中。'
 
     elif message.startswith('/remove 狗狗'):
-        name = message.split('/remove 狗狗 ')[1]
-        remove_participant(name, '狗狗')
+        names = message.split('/remove 狗狗 ')[1].split(',')
+        removed_names = []
+        for name in names:
+            removed = remove_participant(name.strip(), '狗狗')
+            removed_names.extend(removed)
+        if removed_names:
+            reply_text = f'{", ".join(removed_names)} 已成功移出「狗狗」的參加名單！'
+        else:
+            reply_text = '指定的玩家不在「狗狗」的參加名單中。'
 
     elif message == '/list 逆轉':
         participant_list = list_participants('逆轉')
@@ -196,7 +182,7 @@ def handle_message(event):
         if participant_list:
             reply_text = '「狗狗」的參加名單：\n' + participant_list
         else:
-            reply_text = '目前沒有任何人參加「狗狗」。'
+            reply_text = '目前沒有任何人參加「狗狗」的名單。'
 
     elif message.startswith('/draw 逆轉'):
         num = int(message.split('/draw 逆轉 ')[1])

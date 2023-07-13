@@ -134,7 +134,9 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    msg = event.message.text
+    message = event.message.text
+    reply_text = '我不明白你的指令，請重試。'  # 預設的回覆訊息
+    
     if event.source.user_id not in allowed_users:
         if message.startswith('/add') or message.startswith('/remove') or message.startswith('/draw'):
             reply_text = '抱歉，您沒有執行此操作的權限。'

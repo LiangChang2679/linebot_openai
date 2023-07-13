@@ -32,18 +32,24 @@ def add_participant(name, prize, position=None):
     global participants
     global participants_reverse
 
-    if name not in allowed_users:
-        return
-
     if prize == '逆轉':
         names = name.split(',')  # 將名字以逗號分隔
+        added_names = []
         for n in names:
-            participants.append((n.strip(), datetime.now().date()))
+            n = n.strip()
+            if any(p[0] == n for p in participants):
+                continue
+            participants.append((n, datetime.now().date()))
+            added_names.append(n)
+        return added_names
     elif prize == '狗狗':
+        if any(p[0] == name for p in participants_reverse):
+            return []
         if position is None or position >= len(participants_reverse):
             participants_reverse.append((name, datetime.now().date()))
         else:
             participants_reverse.insert(position, (name, datetime.now().date()))
+        return [name]
 
 def remove_participant(name, prize):
     global participants
@@ -135,19 +141,29 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
+    reply_text = '我不明白你的指令，請重試。'  # 預設的回覆訊息
         
     if message.startswith('/add 逆轉'):
         params = message.split('/add 逆轉 ')[1].split(',')
+        added_names = []
         for name in params:
-            add_participant(name.strip(), '逆轉')
-        reply_text = f'{", ".join(params)} 已成功加入「逆轉」技能書的抽獎名單！'
+            added = add_participant(name.strip(), '逆轉')
+            added_names.extend(added)
+        if added_names:
+            reply_text = f'{", ".join(added_names)} 已成功加入「逆轉」技能書的抽獎名單！'
+        else:
+            reply_text = '指定的玩家已經在名單中。'
         
-    else:
-        if message.startswith('/add 狗狗'):
-            params = message.split('/add 狗狗 ')[1].split(',')
-            for name in params:
-                add_participant(name.strip(), '狗狗')
-            reply_text = f'{", ".join(params)} 已成功加入「狗狗」的參加名單！'
+    elif message.startswith('/add 狗狗'):
+        params = message.split('/add 狗狗 ')[1].split(',')
+        added_names = []
+        for name in params:
+            added = add_participant(name.strip(), '狗狗')
+            added_names.extend(added)
+        if added_names:
+            reply_text = f'{", ".join(added_names)} 已成功加入「狗狗」的參加名單！'
+        else:
+            reply_text = '指定的玩家已經在名單中。'
 
         elif message.startswith('/remove 逆轉'):
             name = message.split('/remove 逆轉 ')[1]

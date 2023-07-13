@@ -26,7 +26,7 @@ participants = [('卡帥', "7-13"), ('卡神', "7-13")]
 participants_reverse = [('卡帥', "7-13"), ('卡神', "7-13")]
 winners = []
 
-allowed_users = ['如如咪', '魚兒🦈']
+allowed_users = ['如如咪', '魚兒🦈' , 'Liang']
 
 def add_participant(name, prize, position=None):
     global participants

@@ -22,8 +22,8 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-participants = []
-participants_reverse = []
+participants = [("卡卡","7-13")]
+participants_reverse = [("卡哥","7-13"),("小卡","7-13")]
 winners = []
 
 allowed_users = ['如如咪', '魚兒🦈' , 'Liang']

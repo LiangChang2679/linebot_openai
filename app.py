@@ -43,6 +43,7 @@ def add_participant(name, prize, position=None):
             added_names.append(n)
         return added_names
     elif prize == '狗狗':
+        name = name.strip()
         if any(p[0] == name for p in participants_reverse):
             return []
         if position is None or position >= len(participants_reverse):
@@ -50,6 +51,7 @@ def add_participant(name, prize, position=None):
         else:
             participants_reverse.insert(position, (name, datetime.now().date()))
         return [name]
+
 
 def remove_participant(name, prize):
     global participants
@@ -141,7 +143,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = '我不明白你的指令，請重試1137。'  # 預設的回覆訊息
+    reply_text = '我不明白你的指令，請重試1145。'  # 預設的回覆訊息
 
     if event.message.text == 'ID?' or event.message.text == 'id?':
         User_ID = TextMessage(text=event.source.user_id)

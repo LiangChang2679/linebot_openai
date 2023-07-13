@@ -188,11 +188,7 @@ def handle_message(event):
             6. /list 狗狗 - 查看「狗狗」的參加名單。
             7. /draw 逆轉 {數量} - 從「逆轉」技能書的抽獎名單中抽取指定數量的獲獎者。'''
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=reply_text)
-    )
-        
+    line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
         
 import os
 if __name__ == "__main__":

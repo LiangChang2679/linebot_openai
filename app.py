@@ -22,7 +22,7 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-participants = [('卡帥', datetime.now().date()), ('卡神', datetime.now().date())]
+participants = [('卡帥', 7-13), ('卡神', 7-13)]
 participants_reverse = [('卡帥', datetime.now().date()), ('卡神', datetime.now().date())]
 winners = []
 

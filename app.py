@@ -21,18 +21,99 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
-# OPENAI API Key初始化設定
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
+participants = [('卡帥', datetime.now().date()), ('卡神', datetime.now().date())]
+participants_reverse = [('卡帥', datetime.now().date()), ('卡神', datetime.now().date())]
+winners = []
 
-def GPT_response(text):
-    # 接收回應
-    response = openai.Completion.create(model="text-davinci-003", prompt=text, temperature=0.5, max_tokens=500)
-    print(response)
-    # 重組回應
-    answer = response['choices'][0]['text'].replace('。','')
-    return answer
+allowed_users = ['如如咪', '魚兒🦈']
 
+def add_participant(name, prize, position=None):
+    global participants
+    global participants_reverse
+
+    if name not in allowed_users:
+        return
+
+    if prize == '逆轉':
+        names = name.split(',')  # 將名字以逗號分隔
+        for n in names:
+            participants.append((n.strip(), datetime.now().date()))
+    elif prize == '狗狗':
+        if position is None or position >= len(participants_reverse):
+            participants_reverse.append((name, datetime.now().date()))
+        else:
+            participants_reverse.insert(position, (name, datetime.now().date()))
+
+def remove_participant(name, prize):
+    global participants
+    global participants_reverse
+
+    if name not in allowed_users:
+        return
+
+    if prize == '逆轉':
+        if ',' in name:
+            names = name.split(',')
+            removed_names = []
+            for n in names:
+                participants = [p for p in participants if p[0] != n.strip()]
+                removed_names.append(n.strip())
+            reply_text = f'{", ".join(removed_names)} 已成功移出「逆轉」技能書的抽獎名單！'
+        else:
+            if (name, datetime.now().date()) not in participants:
+                reply_text = f'{name} 不在「逆轉」技能書的抽獎名單內！'
+            else:
+                participants = [p for p in participants if p[0] != name.strip()]
+                reply_text = f'{name} 已成功移出「逆轉」技能書的抽獎名單！'
+    if prize == '狗狗':
+        if ',' in name:
+            names = name.split(',')
+            removed_names = []
+            for n in names:
+                participants = [p for p in participants if p[0] != n.strip()]
+                removed_names.append(n.strip())
+            reply_text = f'{", ".join(removed_names)} 已成功移出「狗狗」的參加名單！'
+        else:
+            if (name, datetime.now().date()) not in participants:
+                reply_text = f'{name} 不在「狗狗」的參加名單內！'
+            else:
+                participants = [p for p in participants if p[0] != name.strip()]
+                reply_text = f'{name} 已成功移出「狗狗」的參加名單！'
+
+def list_participants(prize):
+    if prize == '逆轉':
+        participant_list = ''
+        sorted_participants = sorted(participants, key=lambda p: p[1])
+        for i, participant in enumerate(sorted_participants, start=1):
+            name, date = participant
+            participant_list += f'{i}. {name} ({date.strftime("%m-%d")})\n'
+        return participant_list
+    elif prize == '狗狗':
+        participant_list = ''
+        for i, participant in enumerate(participants_reverse, start=1):
+            name, date = participant
+            participant_list += f'{i}. {name} ({date.strftime("%m-%d")})\n'
+        return participant_list
+
+def draw_winners(prize, num):
+    global participants
+    global winners
+
+    if prize == '逆轉':
+        participant_list = [participant[0] for participant in participants]
+        if num > len(participant_list):
+            return None
+
+        if len(participants) == 0:
+            reply_text = '目前沒有任何人參加抽獎。'
+        else:
+            random.shuffle(participant_list)
+            winners = participant_list[:num]
+            participants = [(participant, datetime.now().date()) for participant in participant_list[num:]]
+            reply_text = f'恭喜以下人員獲得「逆轉」技能書：\n'
+            for i, winner in enumerate(winners, start=1):
+                reply_text += f'{i}. {winner}\n'
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -54,28 +135,63 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if msg.startswith("/查詢 "):  # 如果訊息以 "/查詢 "開頭
-        query = msg[5:]  # 取得訊息的 "/查詢 "後面的部分作為查詢語句
-        GPT_answer = GPT_response(query)  # 將查詢語句送到 GPT-4 進行查詢
-        print(GPT_answer)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(GPT_answer))  # 將 GPT-4 的回應送回給使用者
-    else:  # 如果訊息不是以 "/查詢 "開頭
-        # 這裡可以寫上對這種情況的處理，比如簡單的回應一個預設的訊息，或者是什麼也不做。
-        pass
+    if event.source.user_id not in allowed_users:
+        if message.startswith('/add') or message.startswith('/remove') or message.startswith('/draw'):
+            reply_text = '抱歉，您沒有執行此操作的權限。'
+    else:
+        if message.startswith('/add 逆轉'):
+            params = message.split('/add 逆轉 ')[1].split(',')
+            for name in params:
+                add_participant(name.strip(), '逆轉')
+            reply_text = f'{", ".join(params)} 已成功加入「逆轉」技能書的抽獎名單！'
 
-@handler.add(PostbackEvent)
-def handle_message(event):
-    print(event.postback.data)
+        elif message.startswith('/add 狗狗'):
+            params = message.split('/add 狗狗 ')[1].split(',')
+            for name in params:
+                add_participant(name.strip(), '狗狗')
+            reply_text = f'{", ".join(params)} 已成功加入「狗狗」的參加名單！'
 
+        elif message.startswith('/remove 逆轉'):
+            name = message.split('/remove 逆轉 ')[1]
+            remove_participant(name, '逆轉')
 
-@handler.add(MemberJoinedEvent)
-def welcome(event):
-    uid = event.joined.members[0].user_id
-    gid = event.source.group_id
-    profile = line_bot_api.get_group_member_profile(gid, uid)
-    name = profile.display_name
-    message = TextSendMessage(text=f'{name}歡迎加入')
-    line_bot_api.reply_message(event.reply_token, message)
+        elif message.startswith('/remove 狗狗'):
+            name = message.split('/remove 狗狗 ')[1]
+            remove_participant(name, '狗狗')
+
+        elif message == '/list 逆轉':
+            participant_list = list_participants('逆轉')
+            if participant_list:
+                reply_text = '「逆轉」技能書的抽獎名單：\n' + participant_list
+            else:
+                reply_text = '目前沒有任何人參加「逆轉」技能書的抽獎。'
+
+        elif message == '/list 狗狗':
+            participant_list = list_participants('狗狗')
+            if participant_list:
+                reply_text = '「狗狗」的參加名單：\n' + participant_list
+            else:
+                reply_text = '目前沒有任何人參加「狗狗」。'
+
+        elif message.startswith('/draw 逆轉'):
+            num = int(message.split('/draw 逆轉 ')[1])
+            reply_text = draw_winners('逆轉', num)
+
+        elif message == '/小秘書':
+            reply_text = '''【倚窗聽雨可愛小秘書指令說明】
+        
+            1. /add 逆轉 {名字} - 將玩家加入「逆轉」技能書的抽獎名單。
+            2. /add 狗狗 {名字1,名字2,...} - 將玩家加入「狗狗」的參加名單，可一次新增多個玩家。
+            3. /remove 逆轉 {名字} - 將玩家移出「逆轉」技能書的抽獎名單。
+            4. /remove 狗狗 {名字} - 將玩家移出「狗狗」的參加名單。
+            5. /list 逆轉 - 查看「逆轉」技能書的抽獎名單。
+            6. /list 狗狗 - 查看「狗狗」的參加名單。
+            7. /draw 逆轉 {數量} - 從「逆轉」技能書的抽獎名單中抽取指定數量的獲獎者。'''
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=reply_text)
+    )
         
         
 import os

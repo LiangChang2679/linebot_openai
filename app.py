@@ -54,9 +54,14 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    GPT_answer = GPT_response(msg)
-    print(GPT_answer)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(GPT_answer))
+    if msg.startswith("/查詢 "):  # 如果訊息以 "/查詢 "開頭
+        query = msg[5:]  # 取得訊息的 "/查詢 "後面的部分作為查詢語句
+        GPT_answer = GPT_response(query)  # 將查詢語句送到 GPT-4 進行查詢
+        print(GPT_answer)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(GPT_answer))  # 將 GPT-4 的回應送回給使用者
+    else:  # 如果訊息不是以 "/查詢 "開頭
+        # 這裡可以寫上對這種情況的處理，比如簡單的回應一個預設的訊息，或者是什麼也不做。
+        pass
 
 @handler.add(PostbackEvent)
 def handle_message(event):

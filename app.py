@@ -136,18 +136,14 @@ def callback():
 def handle_message(event):
     message = event.message.text
     reply_text = '我不明白你的指令，請重試。'  # 預設的回覆訊息
-    
-    if event.source.user_id not in allowed_users:
-        if message.startswith('/add') or message.startswith('/remove') or message.startswith('/draw'):
-            reply_text = '抱歉，您沒有執行此操作的權限。'
+        
+    if message.startswith('/add 逆轉'):
+        params = message.split('/add 逆轉 ')[1].split(',')
+        for name in params:
+            add_participant(name.strip(), '逆轉')
+        reply_text = f'{", ".join(params)} 已成功加入「逆轉」技能書的抽獎名單！'
     else:
-        if message.startswith('/add 逆轉'):
-            params = message.split('/add 逆轉 ')[1].split(',')
-            for name in params:
-                add_participant(name.strip(), '逆轉')
-            reply_text = f'{", ".join(params)} 已成功加入「逆轉」技能書的抽獎名單！'
-
-        elif message.startswith('/add 狗狗'):
+        if message.startswith('/add 狗狗'):
             params = message.split('/add 狗狗 ')[1].split(',')
             for name in params:
                 add_participant(name.strip(), '狗狗')

@@ -142,6 +142,7 @@ def handle_message(event):
         for name in params:
             add_participant(name.strip(), '逆轉')
         reply_text = f'{", ".join(params)} 已成功加入「逆轉」技能書的抽獎名單！'
+        
     else:
         if message.startswith('/add 狗狗'):
             params = message.split('/add 狗狗 ')[1].split(',')

@@ -93,6 +93,13 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return 'OK'
+    
+def get_user_profile(user_id):
+    profile = line_bot_api.get_profile(user_id)
+    print("Display name:", profile.display_name)
+    print("Picture URL:", profile.picture_url)
+    print("Status message:", profile.status_message)
+    print("User ID:", profile.user_id)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):

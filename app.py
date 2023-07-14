@@ -13,6 +13,7 @@ import tempfile, os
 import datetime
 import openai
 import time
+import random
 #======python的函數庫==========
 
 app = Flask(__name__)
@@ -24,34 +25,34 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': [('卡帥', datetime.datetime.now())],
-    '逆轉': [],
+    '狗狗': {'卡帥': datetime.datetime.now()},
+    '逆轉': {},
 }
 
-# Function to handle addition of players
 def add_players(category, names):
-    existing = participants.get(category, [])
+    if category not in ['狗狗', '逆轉']:
+        return
+    existing = participants.get(category, {})
     added_names = []
     for name in names:
         if name not in existing:
-            existing.append((name, datetime.datetime.now()))  # Save name with timestamp
+            existing[name] = datetime.datetime.now()
             added_names.append(name)
     
-    participants[category] = sorted(existing, key=lambda x: x[1])  # Sort by timestamp
-    
+    participants[category] = existing
     if not added_names:
         return "呀嗨~你輸入的玩家都已經在「{}」名單裡啦！".format(category)
     else:
         return "耶！已經成功把玩家加到「{}」名單中了哦：{}".format(category, "、".join(added_names))
 
-
-# Function to handle removal of players
 def remove_players(category, names):
-    existing = participants.get(category, [])
+    if category not in ['狗狗', '逆轉']:
+        return
+    existing = participants.get(category, {})
     removed_names = []
     for name in names:
         if name in existing:
-            existing.remove(name)
+            del existing[name]
             removed_names.append(name)
     
     if not removed_names:
@@ -59,47 +60,32 @@ def remove_players(category, names):
     else:
         return "哎呀！我已經從「{}」名單中移除這些玩家了：{}".format(category, "、".join(removed_names))
 
-
-# Function to handle listing of players
 def list_players(category):
-    existing = participants.get(category, [])
+    if category not in ['狗狗', '逆轉']:
+        return
+    existing = participants.get(category, {})
     if not existing:
         return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
     else:
-        return "「{}」名單裡的玩家有：\n{}".format(category, "\n".join([name for name, _ in existing]))
+        sorted_players = sorted(existing.items(), key=lambda x: x[1])
+        players_list = ["{} - {}".format(name, timestamp.strftime("%m-%d %H:%M")) for name, timestamp in sorted_players]
+        return "「{}」名單裡的玩家有：\n{}".format(category, "\n".join(players_list))
 
-
-# Function to handle drawing of players
-def draw_players(category, num):
-    existing = participants.get(category, [])
-    if num > len(existing):
-        return "哎呀！「{}」的名單裡的玩家數量不夠我抽取呢。".format(category)
-    
-    winners = random.sample(existing, num)
-    return "呼啦！以下這些玩家在「{}」中抽中「逆轉」技能書囉：{}".format(category, ", ".join(winners))
-
-
-# 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
-    # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
-    # get request body as text
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
-    # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
 
-
-# Handler function
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = ''  # Default response
+    reply_text = ''  
 
     if message.startswith('/add'):
         parts = message.split(' ')
@@ -114,11 +100,6 @@ def handle_message(event):
     elif message.startswith('/list'):
         category = message.split(' ')[1]
         reply_text = list_players(category)
-    elif message.startswith('/draw'):
-        parts = message.split(' ')
-        category = parts[1]
-        num = int(parts[2])
-        reply_text = draw_players(category, num)
     elif message == '/小秘書':
         reply_text = '''【小秘書指令說明】
         

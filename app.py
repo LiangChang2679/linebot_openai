@@ -76,7 +76,7 @@ def draw_players(category, num):
         return "哎呀！「{}」的名單裡的玩家數量不夠我抽取呢。".format(category)
     
     winners = random.sample(existing, num)
-    return "呼啦！以下這些玩家在「{}」中抽中獎囉：{}".format(category, ", ".join(winners))
+    return "呼啦！以下這些玩家在「{}」中抽中「逆轉」技能書囉：{}".format(category, ", ".join(winners))
 
 
 # 監聽所有來自 /callback 的 Post Request
@@ -125,7 +125,8 @@ def handle_message(event):
         1. /add {類別} {名字1,名字2,...} - 將玩家加入到指定類別的名單中，可以一次新增多個玩家。
         2. /remove {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
         3. /list {類別} - 查看指定類別的名單。
-        4. /draw {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。'''
+        4. /draw {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
+        類別只有狗狗跟「逆轉」技能書
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

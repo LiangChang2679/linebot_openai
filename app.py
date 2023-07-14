@@ -100,6 +100,11 @@ def handle_message(event):
     elif message.startswith('/list'):
         category = message.split(' ')[1]
         reply_text = list_players(category)
+    elif message.startswith('/draw'):
+        parts = message.split(' ')
+        category = parts[1]
+        num = int(parts[2])
+        reply_text = draw_players(category, num)
     elif message == '/小秘書':
         reply_text = '''【小秘書指令說明】
         

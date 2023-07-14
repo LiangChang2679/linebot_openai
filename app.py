@@ -117,8 +117,10 @@ def handle_message(event):
         names = parts[2].split(',')
         reply_text = remove_players(category, names)
     elif message.startswith('/清單'):
-        category = message.split(' ')[1]
-        reply_text = list_players(category)
+        parts = message.split(' ')
+        if len(parts) > 1:
+            category = parts[1]
+            reply_text = list_players(category)
     elif message.startswith('/抽獎'):
         parts = message.split(' ')
         category = parts[1]

@@ -111,7 +111,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = '我不明白你的指令，請再試一次。'  # Default response
+    reply_text = '我不明白你的指令，請再試一次0943。'  # Default response
 
     if message.startswith('/add'):
         parts = message.split(' ')

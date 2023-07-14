@@ -37,9 +37,9 @@ def add_players(category, names):
     added_names = []
     for name in names:
         if name not in existing:
-            existing[name] = datetime.datetime.now()
+            existing[name] = datetime.now()
             added_names.append(name)
-    
+
     participants[category] = existing
     if not added_names:
         return "呀嗨~你輸入的玩家都已經在「{}」名單裡啦！".format(category)
@@ -81,6 +81,8 @@ def draw_players(category, num):
 
     participants_list = list(existing.keys())
     winners = random.sample(participants_list, num)
+    # 清空名单
+    participants[category] = {}
     return "呼啦！以下這些玩家在「{}」中抽中「逆轉」技能書囉：{}".format(category, ", ".join(winners))
 
 @app.route("/callback", methods=['POST'])

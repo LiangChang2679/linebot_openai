@@ -63,12 +63,15 @@ def remove_players(category, names):
 
 # Function to handle listing of players
 def list_players(category):
-    existing = participants.get(category)
+    existing = participants.get(category, {})
     if not existing:
         return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
     else:
-        player_list = ", ".join(existing.keys())
-        return "「{}」名單裡的玩家有：{}".format(category, player_list)
+        player_list = []
+        for name, timestamp in existing.items():
+            player_list.append("{} - {}".format(name, timestamp.strftime("%m-%d %H:%M")))
+        players = "\n".join(player_list)
+        return "「{}」名單裡的玩家有：\n{}".format(category, players)
 
 # Function to handle drawing of players
 def draw_players(category, num):

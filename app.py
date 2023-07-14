@@ -1,5 +1,4 @@
 from flask import Flask, request, abort
-
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -7,6 +6,10 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import *
+import tempfile, os
+from datetime import datetime
+import random
+import sqlite3
 
 #======python的函數庫==========
 import tempfile, os
@@ -31,26 +34,31 @@ participants = {
            '一笑': datetime.now(), '天山': datetime.now(), '花雪': datetime.now(), '哈比': datetime.now(), '夏日': datetime.now(), '平A': datetime.now()},
 }
 
+# Database setup
+db_path = os.path.join(os.path.dirname(__file__), 'participants.db')
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
+
+# Create participants table if not exists
+cursor.execute('''CREATE TABLE IF NOT EXISTS participants
+                  (category TEXT, name TEXT, timestamp TEXT)''')
+
 def add_players(category, names):
-    if category not in ['狗狗', '逆轉']:
-        return
-    existing = participants.get(category, {})
+    existing = get_participants(category)
     added_names = []
     for name in names:
         if name not in existing:
             existing[name] = datetime.now()
             added_names.append(name)
 
-    participants[category] = existing
+    save_participants(category, existing)
     if not added_names:
         return "呀嗨~你輸入的玩家都已經在「{}」名單裡啦！".format(category)
     else:
         return "耶！已經成功把玩家加到「{}」名單中了哦：{}".format(category, "、".join(added_names))
 
 def remove_players(category, names):
-    if category not in ['狗狗', '逆轉']:
-        return
-    existing = participants.get(category, {})
+    existing = get_participants(category)
     removed_names = []
     for name in names:
         if name in existing:
@@ -60,7 +68,27 @@ def remove_players(category, names):
     if not removed_names:
         return "咦？你提供的玩家名字，我在「{}」的名單裡找不到呢！".format(category)
     else:
+        save_participants(category, existing)
         return "哎呀！我已經從「{}」名單中移除這些玩家了：{}".format(category, "、".join(removed_names))
+
+def get_participants(category):
+    cursor.execute("SELECT name, timestamp FROM participants WHERE category=?", (category,))
+    rows = cursor.fetchall()
+    participants = {}
+    for row in rows:
+        name, timestamp = row
+        participants[name] = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+    return participants
+
+def save_participants(category, participants):
+    # Remove existing data for the category
+    cursor.execute("DELETE FROM participants WHERE category=?", (category,))
+    conn.commit()
+
+    # Insert new data for the category
+    for name, timestamp in participants.items():
+        cursor.execute("INSERT INTO participants VALUES (?, ?, ?)", (category, name, timestamp.strftime("%Y-%m-%d %H:%M:%S")))
+    conn.commit()
 
 # Function to handle listing of players
 def list_players(category):

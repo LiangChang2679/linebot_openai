@@ -87,20 +87,20 @@ def handle_message(event):
     message = event.message.text
     reply_text = ''  
 
-    if message.startswith('/add'):
+    if message.startswith('/新增'):
         parts = message.split(' ')
         category = parts[1]
         names = parts[2].split(',')
         reply_text = add_players(category, names)
-    elif message.startswith('/remove'):
+    elif message.startswith('/移除'):
         parts = message.split(' ')
         category = parts[1]
         names = parts[2].split(',')
         reply_text = remove_players(category, names)
-    elif message.startswith('/list'):
+    elif message.startswith('/清單'):
         category = message.split(' ')[1]
         reply_text = list_players(category)
-    elif message.startswith('/draw'):
+    elif message.startswith('/抽獎'):
         parts = message.split(' ')
         category = parts[1]
         num = int(parts[2])
@@ -108,10 +108,10 @@ def handle_message(event):
     elif message == '/小秘書':
         reply_text = '''【小秘書指令說明】
         
-        1. /add {類別} {名字1,名字2,...} - 將玩家加入到指定類別的名單中，可以一次新增多個玩家。
-        2. /remove {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
-        3. /list {類別} - 查看指定類別的名單。
-        4. /draw {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
+        1. /新增 {類別} {名字1,名字2,...} - 將玩家加入到指定類別的名單中，可以一次新增多個玩家。
+        2. /移除 {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
+        3. /清單 {類別} - 查看指定類別的名單。
+        4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
         類別只有狗狗跟逆轉技能書'''
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))

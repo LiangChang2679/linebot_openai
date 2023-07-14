@@ -25,7 +25,7 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': {'卡帥': datetime.datetime.now(),'小喵魚': datetime.now(), '飄飄': datetime.now(), 'ano 花': datetime.now(), 'kura': datetime.now(),
+    '狗狗': {'卡帥': datetime.now(),'帥卡': datetime.now(),'小喵魚': datetime.now(), '飄飄': datetime.now(), 'ano 花': datetime.now(), 'kura': datetime.now(),
            '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now()},
     '逆轉': {},
 }
@@ -61,16 +61,24 @@ def remove_players(category, names):
     else:
         return "哎呀！我已經從「{}」名單中移除這些玩家了：{}".format(category, "、".join(removed_names))
 
+# Function to handle listing of players
 def list_players(category):
-    if category not in ['狗狗', '逆轉']:
-        return
-    existing = participants.get(category, {})
+    existing = participants.get(category)
     if not existing:
         return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
     else:
-        sorted_players = sorted(existing.items(), key=lambda x: x[1])
-        players_list = ["{} - {}".format(name, timestamp.strftime("%m-%d %H:%M")) for name, timestamp in sorted_players]
-        return "「{}」名單裡的玩家有：\n{}".format(category, "\n".join(players_list))
+        player_list = ", ".join(existing.keys())
+        return "「{}」名單裡的玩家有：{}".format(category, player_list)
+
+# Function to handle drawing of players
+def draw_players(category, num):
+    existing = participants.get(category)
+    if not existing:
+        return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
+
+    participants_list = list(existing.keys())
+    winners = random.sample(participants_list, num)
+    return "呼啦！以下這些玩家在「{}」中抽中「逆轉」技能書囉：{}".format(category, ", ".join(winners))
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -113,7 +121,7 @@ def handle_message(event):
         2. /移除 {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
         3. /清單 {類別} - 查看指定類別的名單。
         4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
-        類別只有狗狗跟逆轉技能書'''
+        類別只有「狗狗」跟「逆轉」技能書'''
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

@@ -126,7 +126,7 @@ def handle_message(event):
         2. /remove {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
         3. /list {類別} - 查看指定類別的名單。
         4. /draw {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
-        類別只有狗狗跟逆轉技能書
+        類別只有狗狗跟逆轉技能書'''
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

@@ -104,7 +104,7 @@ def get_user_profile(user_id):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = ''  
+    reply_text = ''  # 默认回复文本
 
     if message.startswith('/新增'):
         parts = message.split(' ')
@@ -118,7 +118,7 @@ def handle_message(event):
         reply_text = remove_players(category, names)
     elif message.startswith('/清單'):
         parts = message.split(' ')
-        if len(parts) > 1:
+        if len(parts) > 1 and parts[1] in ['狗狗', '逆轉']:
             category = parts[1]
             reply_text = list_players(category)
     elif message.startswith('/抽獎'):

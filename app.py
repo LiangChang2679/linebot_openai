@@ -24,16 +24,13 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': [],
+    '狗狗': [('卡帥', datetime.datetime.now())],
     '逆轉': [],
 }
 
 # Function to handle addition of players
 def add_players(category, names):
-    if category not in participants:
-        return "無效的類別"
-    
-    existing = participants[category]
+    existing = participants.get(category, [])
     added_names = []
     for name in names:
         if name not in existing:
@@ -43,17 +40,14 @@ def add_players(category, names):
     participants[category] = sorted(existing, key=lambda x: x[1])  # Sort by timestamp
     
     if not added_names:
-        return "所有玩家都已在名單中"
+        return "呀嗨~你輸入的玩家都已經在「{}」名單裡啦！".format(category)
     else:
-        return "已新增玩家: " + ", ".join(added_names)
+        return "耶！已經成功把玩家加到「{}」名單中了哦：{}".format(category, "、".join(added_names))
 
 
 # Function to handle removal of players
 def remove_players(category, names):
-    if category not in participants:
-        return "無效的類別"
-    
-    existing = participants[category]
+    existing = participants.get(category, [])
     removed_names = []
     for name in names:
         if name in existing:
@@ -61,34 +55,28 @@ def remove_players(category, names):
             removed_names.append(name)
     
     if not removed_names:
-        return "名單中沒有匹配的玩家"
+        return "咦？你提供的玩家名字，我在「{}」的名單裡找不到呢！".format(category)
     else:
-        return "已移除玩家: " + ", ".join(removed_names)
+        return "哎呀！我已經從「{}」名單中移除這些玩家了：{}".format(category, "、".join(removed_names))
 
 
 # Function to handle listing of players
 def list_players(category):
-    if category not in participants:
-        return "無效的類別"
-    
-    existing = participants[category]
+    existing = participants.get(category, [])
     if not existing:
-        return "名單是空的"
+        return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
     else:
-        return "\n".join([name for name, _ in existing])
+        return "「{}」名單裡的玩家有：\n{}".format(category, "\n".join([name for name, _ in existing]))
 
 
 # Function to handle drawing of players
 def draw_players(category, num):
-    if category not in participants:
-        return "無效的類別"
-    
-    existing = participants[category]
+    existing = participants.get(category, [])
     if num > len(existing):
-        return "玩家數量不足以抽取"
+        return "哎呀！「{}」的名單裡的玩家數量不夠我抽取呢。".format(category)
     
     winners = random.sample(existing, num)
-    return "獲獎者: " + ", ".join(winners)
+    return "呼啦！以下這些玩家在「{}」中抽中獎囉：{}".format(category, ", ".join(winners))
 
 
 # 監聽所有來自 /callback 的 Post Request
@@ -111,7 +99,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
-    reply_text = '我不明白你的指令，請再試一次0943。'  # Default response
+    reply_text = ''  # Default response
 
     if message.startswith('/add'):
         parts = message.split(' ')
@@ -131,6 +119,13 @@ def handle_message(event):
         category = parts[1]
         num = int(parts[2])
         reply_text = draw_players(category, num)
+    elif message == '/小秘書':
+        reply_text = '''【小秘書指令說明】
+        
+        1. /add {類別} {名字1,名字2,...} - 將玩家加入到指定類別的名單中，可以一次新增多個玩家。
+        2. /remove {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
+        3. /list {類別} - 查看指定類別的名單。
+        4. /draw {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。'''
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

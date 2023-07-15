@@ -30,7 +30,14 @@ participants = {
     '逆轉': {'阿海': datetime.now(), '鹹蛋': datetime.now(), '隨心': datetime.now(), '墨魚': datetime.now(), '一笑': datetime.now(), '天山': datetime.now(),
            '花雪': datetime.now(), '哈比': datetime.now(), '夏日': datetime.now(), '平A': datetime.now()}
 }
-custom_replies = {}
+custom_replies = {
+    "我們來烤墨魚吧": "三更半夜不要吃這麼好!",
+    "墨魚看起來很適合被打死": "墨魚:我很少被打死!",
+    "好想吃炸花枝": "有想過墨魚的心情嗎?",
+    "80墨魚": "墨魚:被80是我的興趣",
+    "虐": "墨魚:突然有興致想被虐 我是躺的那位",
+    "打斷墨魚的腳": "墨魚:沒關係 可以打斷8次"
+}
 
 def add_custom_reply(trigger, reply):
     custom_replies[trigger] = reply

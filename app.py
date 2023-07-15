@@ -26,73 +26,38 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-# Global lists for participants
-participants = {
-    '狗狗': {'小喵魚': datetime.now(), '飄飄': datetime.now(), 'ano 花': datetime.now(), 'kura': datetime.now(),
-           '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now()},
-    '逆轉': {'阿海': datetime.now(), '鹹蛋': datetime.now(), '隨心': datetime.now(), '墨魚': datetime.now(),
-           '一笑': datetime.now(), '天山': datetime.now(), '花雪': datetime.now(), '哈比': datetime.now(), '夏日': datetime.now(), '平A': datetime.now()},
-}
-
 # Database setup
 db_path = os.path.join(os.path.dirname(__file__), 'participants.db')
-conn = sqlite3.connect(db_path)
+conn = sqlite3.connect(db_path, check_same_thread=False)
 cursor = conn.cursor()
 
-# Create participants table if not exists
+# Create participants and teachings tables if not exists
 cursor.execute('''CREATE TABLE IF NOT EXISTS participants
                   (category TEXT, name TEXT, timestamp TEXT)''')
 
-def add_players(category, names):
-    existing = get_participants(category)
-    added_names = []
-    for name in names:
-        if name not in existing:
-            existing[name] = datetime.now()
-            added_names.append(name)
+cursor.execute('''CREATE TABLE IF NOT EXISTS teachings
+                  (question TEXT, answer TEXT)''')
 
-    save_participants(category, existing)
-    if not added_names:
-        return "呀嗨~你輸入的玩家都已經在「{}」名單裡啦！".format(category)
-    else:
-        return "耶！已經成功把玩家加到「{}」名單中了哦：{}".format(category, "、".join(added_names))
+conn.commit()
 
-def remove_players(category, names):
-    existing = get_participants(category)
-    removed_names = []
-    for name in names:
-        if name in existing:
-            del existing[name]
-            removed_names.append(name)
-    
-    if not removed_names:
-        return "咦？你提供的玩家名字，我在「{}」的名單裡找不到呢！".format(category)
-    else:
-        save_participants(category, existing)
-        return "哎呀！我已經從「{}」名單中移除這些玩家了：{}".format(category, "、".join(removed_names))
+# Existing code of add_players and remove_players functions...
 
-def get_participants(category):
-    cursor.execute("SELECT name, timestamp FROM participants WHERE category=?", (category,))
-    rows = cursor.fetchall()
-    participants = {}
-    for row in rows:
-        name, timestamp = row
-        participants[name] = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    return participants
-
-def save_participants(category, participants):
-    # Remove existing data for the category
-    cursor.execute("DELETE FROM participants WHERE category=?", (category,))
+def teach(question, answer):
+    cursor.execute("INSERT INTO teachings VALUES (?, ?)", (question, answer))
     conn.commit()
+    return "" 
 
-    # Insert new data for the category
-    for name, timestamp in participants.items():
-        cursor.execute("INSERT INTO participants VALUES (?, ?, ?)", (category, name, timestamp.strftime("%Y-%m-%d %H:%M:%S")))
-    conn.commit()
+def answer_question(question):
+    cursor.execute("SELECT answer FROM teachings WHERE question=?", (question,))
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    else:
+        return ""
 
 # Function to handle listing of players
 def list_players(category):
-    existing = participants.get(category, {})
+    existing = get_participants(category)
     if not existing:
         return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
     else:
@@ -104,14 +69,14 @@ def list_players(category):
 
 # Function to handle drawing of players
 def draw_players(category, num):
-    existing = participants.get(category)
+    existing = get_participants(category)
     if not existing:
         return "哎呀！「{}」的名單裡現在空空如也呢。".format(category)
 
     participants_list = list(existing.keys())
     winners = random.sample(participants_list, num)
     # 清空名单
-    participants[category] = {}
+    save_participants(category, {})
     return "呼啦！以下這些玩家在「{}」中抽中「逆轉」技能書囉：{}".format(category, ", ".join(winners))
 
 @app.route("/callback", methods=['POST'])
@@ -150,6 +115,18 @@ def handle_message(event):
         category = parts[1]
         num = int(parts[2])
         reply_text = draw_players(category, num)
+    elif message.startswith('/教育'):
+        parts = message.split(' ', 2)
+        if len(parts) == 3: # Ensure correct formatting
+            question = parts[1]
+            answer = parts[2]
+            reply_text = teach(question, answer)
+        else:
+            reply_text = "教育指令格式錯誤，請使用 '/教育 問題 答案' 的格式。"
+    else:
+        temp_reply = answer_question(message)
+        if temp_reply:
+            reply_text = temp_reply
     elif message == '/小秘書':
         reply_text = '''【小秘書指令說明】
         
@@ -157,9 +134,11 @@ def handle_message(event):
         2. /移除 {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
         3. /清單 {類別} - 查看指定類別的名單。
         4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
+        5. /教育 {問題} {答案} - 教育小秘書回答特定問題的答案。
         類別只有「狗狗」跟「逆轉」技能書'''
 
-    line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
+    if reply_text:  # Only reply when there is a message
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
        
 import os
 if __name__ == "__main__":

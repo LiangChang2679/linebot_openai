@@ -115,18 +115,6 @@ def handle_message(event):
         category = parts[1]
         num = int(parts[2])
         reply_text = draw_players(category, num)
-    elif message.startswith('/教育'):
-        parts = message.split(' ', 2)
-        if len(parts) == 3: # Ensure correct formatting
-            question = parts[1]
-            answer = parts[2]
-            reply_text = teach(question, answer)
-        else:
-            reply_text = "教育指令格式錯誤，請使用 '/教育 問題 答案' 的格式。"
-    else:
-        temp_reply = answer_question(message)
-        if temp_reply:
-            reply_text = temp_reply
     elif message == '/小秘書':
         reply_text = '''【小秘書指令說明】
         
@@ -134,11 +122,23 @@ def handle_message(event):
         2. /移除 {類別} {名字} - 從指定類別的名單中移除玩家，可以一次移除多個玩家。
         3. /清單 {類別} - 查看指定類別的名單。
         4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
-        5. /教育 {問題} {答案} - 教育小秘書回答特定問題的答案。
         類別只有「狗狗」跟「逆轉」技能書'''
 
-    if reply_text:  # Only reply when there is a message
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+    elif message.startswith('/教育'):
+        parts = message.split(' ', 2)
+        if len(parts) == 3:
+            question, answer = parts[1], parts[2]
+            teach(question, answer)
+
+    elif message.startswith('/問'):
+        parts = message.split(' ', 1)
+        if len(parts) == 2:
+            question = parts[1]
+            answer = answer_question(question)
+            if answer is not None:
+                reply_text = answer
+
+    line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        
 import os
 if __name__ == "__main__":

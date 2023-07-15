@@ -142,6 +142,13 @@ def handle_message(event):
         3. /清單 {類別} - 查看指定類別的名單。
         4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
         類別只有「狗狗」跟「逆轉」技能書'''
+    elif message.startswith('/教育 '):
+        _, trigger, reply = message.split(' ', 2)
+        reply_text = add_custom_reply(trigger, reply)
+    # Your existing command handling code goes here
+    else:
+        if message in custom_replies:
+            reply_text = custom_replies[message]
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

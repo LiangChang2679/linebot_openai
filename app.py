@@ -28,7 +28,7 @@ participants = {
     '狗狗': {'卡帥': datetime.now(), '帥卡': datetime.now(), '小喵魚': datetime.now(), '飄飄': datetime.now(), 'ano 花': datetime.now(), 'kura': datetime.now(),
            '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now()},
     '逆轉': {'阿海': datetime.now(), '鹹蛋': datetime.now(), '隨心': datetime.now(), '墨魚': datetime.now(), '一笑': datetime.now(), '天山': datetime.now(),
-           '花雪': datetime.now(), '哈比': datetime.now(), '夏日': datetime.now(), '平A': datetime.now()}},
+           '花雪': datetime.now(), '哈比': datetime.now(), '夏日': datetime.now(), '平A': datetime.now()}}
 }
 custom_replies = {}
 

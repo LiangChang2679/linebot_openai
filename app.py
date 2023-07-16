@@ -162,7 +162,7 @@ def handle_message(event):
     elif message.startswith('/教育 '):
         _, trigger, reply = message.split(' ', 2)
         reply_text = add_custom_reply(trigger, reply)
-    elif:
+    else:
         trigger = find_trigger(message)
         if trigger is not None:
             reply_text = custom_replies[trigger]

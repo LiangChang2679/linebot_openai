@@ -46,6 +46,12 @@ def add_custom_reply(trigger, reply):
     custom_replies[trigger] = reply
     return f'嘿嘿~我學會新的回覆了哦！當你說"{trigger}"，我會說"{reply}"哦！'
 
+def find_trigger(message):
+    for trigger in custom_replies:
+        if trigger in message:
+            return trigger
+    return None
+
 def add_players(category, names):
     if category not in ['狗狗', '逆轉']:
         return
@@ -152,13 +158,14 @@ def handle_message(event):
         3. /清單 {類別} - 查看指定類別的名單。
         4. /抽獎 {類別} {數量} - 從指定類別的名單中抽取指定數量的玩家。
         類別只有「狗狗」跟「逆轉」技能書'''
+       # 在原有的命令處理程式碼中新增以下部分
     elif message.startswith('/教育 '):
         _, trigger, reply = message.split(' ', 2)
         reply_text = add_custom_reply(trigger, reply)
-    # Your existing command handling code goes here
-    else:
-        if message in custom_replies:
-            reply_text = custom_replies[message]
+    elif:
+        trigger = find_trigger(message)
+        if trigger is not None:
+            reply_text = custom_replies[trigger]
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

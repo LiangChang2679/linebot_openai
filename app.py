@@ -26,11 +26,12 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 # Global lists for participants
 participants = {
     '狗狗': {'小喵魚_暫延': datetime.now(), 'kura': datetime.now(),
-           '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now()},
+           '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now()},
     '逆轉': {}
 }
 custom_replies = {
     "烤墨魚": "三更半夜不要吃這麼好!",
+     "砍墨魚": "兜兜兜兜兜兜兜兜",
     "炸花枝": "有想過墨魚的心情嗎?",
     "80墨魚": "墨魚:被80是我的興趣",
     "虐": "墨魚:突然有興致想被虐 我是躺的那位",
@@ -42,10 +43,12 @@ custom_replies = {
     "墨魚需要拍拍": "尼最香尼最棒尼最惹人愛~~宵夜大家為你排一排",
     "欺負墨魚": "那你大家對你熱烈的愛意",
     "墨魚很聰明": "???",
-    "炸墨魚": "不要炸墨魚嚶嚶嚶",
-    "霸主": "墨魚中的霸主？ 那是什麼? 還是墨魚",
+    "炸墨魚": "所以我說那個醬汁呢?",
+    "霸主": "墨魚中的霸主？/n還是墨魚",
     "夢想" : "做人如果沒有夢想 那跟鹹墨魚有什麼分別",
-    "爭" : "爭什麼 摻在一起做墨魚丸啊 笨蛋!"
+    "爭" : "爭什麼 摻在一起做墨魚丸啊 笨蛋!",
+    "年輕" : "這是史上最年輕的特級墨魚，宇楓墨魚！",
+    "請勿玩墨魚" : "^_____^"
 }
 
 def add_custom_reply(trigger, reply):

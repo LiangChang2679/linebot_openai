@@ -50,6 +50,27 @@ custom_replies = {
     "請勿玩墨魚" : "^_____^"
 }
 
+game_state = {}
+def start_game(user_id):
+    game_state[user_id] = {'score': 0, 'question': None}
+
+def ask_question(user_id):
+    if user_id not in game_state:
+        return "遊戲尚未開始。請先輸入 /墨魚知識大挑戰"
+    question = random.choice(questions)
+    game_state[user_id]['question'] = question
+    return question['Q']
+
+def check_answer(user_id, answer):
+    if user_id not in game_state or game_state[user_id]['question'] is None:
+        return "遊戲尚未開始。請先輸入 /墨魚知識大挑戰"
+    correct_answer = game_state[user_id]['question']['A']
+    if answer.lower() == correct_answer.lower():
+        game_state[user_id]['score'] += 1
+        return "答對了! 你目前的分數是 {} 。".format(game_state[user_id]['score'])
+    else:
+        return "答錯了! 正確答案是 {} 。你目前的分數是 {} 。".format(correct_answer, game_state[user_id]['score'])
+
 def add_custom_reply(trigger, reply):
     custom_replies[trigger] = reply
     return f'嘿嘿~我學會新的回覆了哦！當你說"{trigger}"，我會說"{reply}"哦！'
@@ -135,6 +156,7 @@ def get_user_profile(user_id):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
     message = event.message.text
     reply_text = ''
 
@@ -170,10 +192,12 @@ def handle_message(event):
     elif message.startswith('/教育 '):
         _, trigger, reply = message.split(' ', 2)
         reply_text = add_custom_reply(trigger, reply)
-    else:
-        trigger = find_trigger(message)
-        if trigger is not None:
-            reply_text = custom_replies[trigger]
+    elif message == '/墨魚知識大挑戰':
+        start_game(user_id)
+        reply_text = ask_question(user_id)
+    else user_id in game_state and game_state[user_id]['question'] is not None:
+        reply_text = check_answer(user_id, message)
+
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))
        

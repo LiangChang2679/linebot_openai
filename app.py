@@ -212,8 +212,12 @@ def handle_message(event):
     elif message == '/墨魚知識大挑戰':
         start_game(user_id)
         reply_text = ask_question(user_id)
-    else user_id in game_state and game_state[user_id]['question'] is not None:
+    elif user_id in game_state and game_state[user_id]['question'] is not None:
         reply_text = check_answer(user_id, message)
+    else:
+        trigger = find_trigger(message)
+        if trigger is not None:
+            reply_text = custom_replies[trigger]
 
 
     line_bot_api.reply_message(event.reply_token,TextSendMessage(text=reply_text))

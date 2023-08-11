@@ -25,8 +25,7 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': {'小喵魚_暫延': datetime.now(), 'kura': datetime.now(),
-           '姨媽': datetime.now(), '天山': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now()},
+    '狗狗': {'小喵魚_暫延': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now(), '野火': datetime.now(), '培彰': datetime.now()},
     '逆轉': {}
 }
 custom_replies = {
@@ -35,7 +34,7 @@ custom_replies = {
     "炸花枝": "有想過墨魚的心情嗎?",
     "80墨魚": "墨魚:被80是我的興趣",
     "虐": "墨魚:突然有興致想被虐 我是躺的那位",
-    "墨魚腳": "墨魚:沒關係 腳可以打斷8次",
+    "墨魚腳": "墨魚:沒關係 腳可以打斷10次",
     "渣墨魚": "墨魚:(挖鼻)",
     "墨魚麵": "中午來碗墨魚麵",
     "墨魚壽司": "墨魚壽司..(口水)",

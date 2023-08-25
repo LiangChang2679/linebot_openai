@@ -48,8 +48,11 @@ custom_replies = {
     "霸主": "墨魚中的霸主?   還是墨魚",
     "夢想" : "做人如果沒有夢想 那跟鹹墨魚有什麼分別",
     "爭" : "爭什麼 摻在一起做墨魚丸啊 笨蛋!",
-    "年輕" : "這是史上最年輕的特級墨魚，宇楓墨魚！",
-    "玩墨魚" : "^_____^"
+    "年輕" : "這是史上最年輕的特級墨魚，御楓墨魚！",
+    "玩墨魚" : "^_____^",
+    "狼" : "您是要登記狗狗嗎~~請找花雪雪唷!",
+    "不要玩小秘書" : "你真的很糟糕耶(ㆆᴗㆆ",
+    "餓了" : "今晚我想來點烤墨魚0.0",
 }
 
 questions = [
@@ -69,26 +72,6 @@ questions = [
     {'Q': '墨魚的繁殖方式是如何的呢？', 'A': '卵生'},
     {'Q': '墨魚能夠後退游泳嗎？', 'A': '可以'}
 ]
-game_state = {}
-def start_game(user_id):
-    game_state[user_id] = {'score': 0, 'question': None}
-
-def ask_question(user_id):
-    if user_id not in game_state:
-        return "遊戲尚未開始。請先輸入 /墨魚知識大挑戰"
-    question = random.choice(questions)
-    game_state[user_id]['question'] = question
-    return question['Q']
-
-def check_answer(user_id, answer):
-    if user_id not in game_state or game_state[user_id]['question'] is None:
-        return "遊戲尚未開始。請先輸入 /墨魚知識大挑戰"
-    correct_answer = game_state[user_id]['question']['A']
-    if answer.lower() == correct_answer.lower():
-        game_state[user_id]['score'] += 1
-        return "答對了! 你目前的分數是 {} 。".format(game_state[user_id]['score'])
-    else:
-        return "答錯了! 正確答案是 {} 。你目前的分數是 {} 。".format(correct_answer, game_state[user_id]['score'])
 
 def add_custom_reply(trigger, reply):
     custom_replies[trigger] = reply
@@ -211,11 +194,6 @@ def handle_message(event):
     elif message.startswith('/教育 '):
         _, trigger, reply = message.split(' ', 2)
         reply_text = add_custom_reply(trigger, reply)
-    elif message == '/墨魚知識大挑戰':
-        start_game(user_id)
-        reply_text = ask_question(user_id)
-    elif user_id in game_state and game_state[user_id]['question'] is not None:
-        reply_text = check_answer(user_id, message)
     else:
         trigger = find_trigger(message)
         if trigger is not None:

@@ -25,7 +25,7 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': {'小喵魚_暫延': datetime.now(), '拚打': datetime.now(), '阿傑': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now(), '野火': datetime.now(), '培彰': datetime.now()},
+    '狗狗': {'小喵魚_暫延': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now(), '野火': datetime.now(), '培彰': datetime.now(), '酒保': datetime.now()},
     '逆轉': {}
 }
 custom_replies = {
@@ -53,6 +53,8 @@ custom_replies = {
     "狼" : "您是要登記狗狗嗎~~請找花雪雪唷!",
     "不要玩小秘書" : "你真的很糟糕耶(ㆆᴗㆆ",
     "餓了" : "今晚我想來點烤墨魚0.0",
+    "注意" : "注意! 注意還動阿",
+    "輕鬆" : "咱們外表嚴肅 內心輕鬆 , 不要外表輕鬆 內心旗魚鬆"
 }
 
 questions = [

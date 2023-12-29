@@ -25,7 +25,7 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
 # Global lists for participants
 participants = {
-    '狗狗': {'小喵魚_暫延': datetime.now(), '葵': datetime.now(), '羅羅': datetime.now(), 'jotaro': datetime.now(), '西卡': datetime.now(), '綺': datetime.now(), '野火': datetime.now(), '培彰': datetime.now(), '酒保': datetime.now()},
+    '狗狗': {},
     '逆轉': {}
 }
 custom_replies = {

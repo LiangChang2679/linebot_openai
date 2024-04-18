@@ -14,6 +14,7 @@ from datetime import datetime
 import openai
 import time
 import random
+import threading
 #======python的函數庫==========
 
 app = Flask(__name__)

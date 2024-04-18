@@ -68,20 +68,35 @@ custom_replies = {
 
 questions = [
     {'Q': '墨魚屬於什麼種類的生物呀？', 'A': '頭足綱'},
-    {'Q': '墨魚使用什麼來保持浮力呢？', 'A': '氣室'},
+    {'Q': '墨魚使用什麼部位來保持浮力呢？', 'A': '氣室'},
     {'Q': '墨魚是冷血還是熱血動物呢？', 'A': '冷血'},
     {'Q': '墨魚可以變色嗎？', 'A': '可以'},
     {'Q': '墨魚的視力好不好呢？', 'A': '好'},
     {'Q': '墨魚的壽命通常有多長呢？', 'A': '2年'},
-    {'Q': '墨魚的墨汁可以做什麼用呢？', 'A': '逃'},
-    {'Q': '墨魚主要生活在哪裡呢？', 'A': '海洋'},
     {'Q': '墨魚有幾只腳呢？', 'A': '10'},
     {'Q': '墨魚有骨頭嗎？', 'A': '沒有'},
-    {'Q': '墨魚是夜行還是日行的動物呢？', 'A': '夜行性'},
+    {'Q': '墨魚是夜行性還是日行性的動物呢？', 'A': '夜行性'},
     {'Q': '墨魚是肉食還是草食的動物呢？', 'A': '肉食'},
     {'Q': '墨魚的呼吸器官是什麼呢？', 'A': '鰓'},
-    {'Q': '墨魚的繁殖方式是如何的呢？', 'A': '卵生'},
-    {'Q': '墨魚能夠後退游泳嗎？', 'A': '可以'}
+    {'Q': '墨魚的繁殖方式是胎生還是卵生的呢？', 'A': '卵生'},
+    {'Q': '墨魚可以後退游泳嗎？', 'A': '可以'},
+    {'Q': '墨魚釋放墨汁的主要目的是什麼？', 'A': '逃避天敵'},
+    {'Q': '墨魚的眼睛有什麼獨特之處？', 'A': 'W形'},
+    {'Q': '墨魚的色彩變化是通過什麼機構實現的？', 'A': '色素細胞'},
+    {'Q': '墨魚通常在哪個季節繁殖？', 'A': '春季'},
+    {'Q': '墨魚的主要食物是什麼？', 'A': '小魚和甲殼類動物'},
+    {'Q': '墨魚在自然界中的天敵主要有哪些？', 'A': '鯊魚和鯨類'},
+    {'Q': '墨魚的心臟有幾個室？', 'A': '三個'},
+    {'Q': '墨魚的活動時間主要是什麼時候？', 'A': '夜晚'},
+    {'Q': '墨魚在水中移動主要依靠什麼？', 'A': '噴射推進'},
+    {'Q': '墨魚的身體是透明的嗎？', 'A': '不是'},
+    {'Q': '墨魚能夠偽裝自己嗎？', 'A': '可以'},
+    {'Q': '墨魚有幾個心臟？', 'A': '三個'},
+    {'Q': '墨魚使用什麼方式來吸引配偶？', 'A': '顯示鮮艷的顏色'},
+    {'Q': '墨魚在進食時主要用哪個部位捕食？', 'A': '觸手'},
+    {'Q': '墨魚的血液是什麼顏色？', 'A': '藍色'},
+    {'Q': '墨魚的智能與哪些動物相似？', 'A': '狗'},
+    {'Q': '墨魚有沒有聽覺？', 'A': '有'},
 ]
 
 def add_custom_reply(trigger, reply):
@@ -167,6 +182,15 @@ def get_user_profile(user_id):
     print("Status message:", profile.status_message)
     print("User ID:", profile.user_id)
 
+def check_answer(reply_token, correct_answer, user_id):
+    # 这里需要一个方式来获取最近的用户回答，可能需要使用全局变量或者数据库来存储用户回答
+    recent_answer = get_recent_answer(user_id)  # 假设这个函数可以获取到用户的最近回答
+
+    if recent_answer == correct_answer:
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=f"恭喜答對了!! 墨魚啵一個^o^"))
+    else:
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=f"很遺憾，時間已到，答案是{correct_answer}"))
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
@@ -205,6 +229,12 @@ def handle_message(event):
     elif message.startswith('/教育 '):
         _, trigger, reply = message.split(' ', 2)
         reply_text = add_custom_reply(trigger, reply)
+    elif message.startswith('/墨魚知識大挑戰'):
+        question, answer = random.choice(questions)['Q'], random.choice(questions)['A']
+        reply_text = question
+        #開始一個計時器，10秒後檢查答案
+        timer = threading.Timer(10.0, check_answer, [event.reply_token, answer, user_id])
+        timer.start()
     else:
         trigger = find_trigger(message)
         if trigger is not None:
